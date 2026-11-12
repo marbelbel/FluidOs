@@ -1,0 +1,31 @@
+name: Construir FluidOS ISO en la Nube
+
+on:
+  workflow_dispatch: # Permite lanzarlo manualmente con un botón
+
+jobs:
+  build-freebsd-iso:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código de FluidOS
+        uses: actions/checkout@v4
+
+      - name: Ejecutar construcción dentro de FreeBSD 14.2
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '14.2'
+          mem: 4G
+          usesh: true
+          run: |
+            chmod +x *.sh
+            ./build-os.sh
+            ./setup-features.sh
+            ./make-iso.sh
+
+      - name: Subir archivo FluidOS.iso resultante
+        uses: actions/upload-artifact@v4
+        with:
+          name: FluidOS-ISO
+          path: |
+            *.iso
+            /usr/obj/*.iso
